@@ -33,4 +33,23 @@ public class ItemDtoTest {
         assertThat(result).extractingJsonPathStringValue("$.description")
                 .isEqualTo("TestingDescription");
     }
+
+    @Test
+    void testItemDtoWithoutDates() throws Exception {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(1L);
+        itemDto.setName("TestName");
+        itemDto.setDescription("TestingDescription");
+        itemDto.setAvailable(true);
+
+
+        JsonContent<ItemDto> result = json.write(itemDto);
+
+        assertThat(result).extractingJsonPathNumberValue("$.id")
+                .isEqualTo(1);
+        assertThat(result).extractingJsonPathStringValue("$.name")
+                .isEqualTo("TestName");
+        assertThat(result).extractingJsonPathStringValue("$.description")
+                .isEqualTo("TestingDescription");
+    }
 }
