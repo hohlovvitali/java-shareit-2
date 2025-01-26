@@ -148,8 +148,7 @@ public class ItemServiceImplTest {
         itemDto2.setAvailable(true);
         ItemDto savedItem = itemService.create(itemDto2, savedUser.getId());
 
-        assertThrows(NotFoundException.class, () -> itemService.delete(savedItem.getId()
-                , userId));
+        assertThrows(NotFoundException.class, () -> itemService.delete(savedItem.getId(), userId));
     }
 
     @Test
