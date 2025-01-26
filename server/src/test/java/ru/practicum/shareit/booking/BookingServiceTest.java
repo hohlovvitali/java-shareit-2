@@ -81,6 +81,7 @@ public class BookingServiceTest {
         assertThat(booking.getBooker().getId(), equalTo(saveBooker.getId()));
     }
 
+
     @Test
     void updateBookingTest_Approved() throws DuplicateException, NotFoundException, ValidationException {
         UserDto userDto = new UserDto();
@@ -457,6 +458,159 @@ public class BookingServiceTest {
         bookingResponse.setStatus(BookStatus.WAITING);
 
         List<BookingDto> bookings = bookingService.getBookings("WAITING", booker.getId());
+        assertEquals(1, bookings.size());
+        assertEquals(bookingResponse.getId(), bookings.getFirst().getId());
+    }
+
+    @Test
+    void getAllBookingsByBookerIdTest_AllBookings() throws DuplicateException, NotFoundException, ValidationException {
+        UserDto bookerDto = new UserDto();
+        bookerDto.setName("Oliver");
+        bookerDto.setEmail("Oliver@email.ru");
+        UserDto booker = userService.create(bookerDto);
+
+        UserDto ownerDto = new UserDto();
+        ownerDto.setName("John");
+        ownerDto.setEmail("john@email.ru");
+        UserDto owner = userService.create(ownerDto);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("test");
+        itemDto.setDescription("TestDescription");
+        itemDto.setAvailable(true);
+        ItemDto saveItem = itemService.create(itemDto, owner.getId());
+
+        BookingInputDto bookingRequestDto = new BookingInputDto();
+        bookingRequestDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(3));
+        bookingRequestDto.setItemId(saveItem.getId());
+
+        BookingDto bookingResponse = bookingService.create(bookingRequestDto, booker.getId());
+        bookingResponse.setStatus(BookStatus.WAITING);
+
+        List<BookingDto> bookings = bookingService.getBookings("ALL", booker.getId());
+        assertEquals(1, bookings.size());
+        assertEquals(bookingResponse.getId(), bookings.getFirst().getId());
+    }
+
+    @Test
+    void getAllBookingsByOwnerIdTest_PastBookings() throws DuplicateException, NotFoundException, ValidationException {
+        UserDto bookerDto = new UserDto();
+        bookerDto.setName("Oliver");
+        bookerDto.setEmail("Oliver@email.ru");
+        UserDto booker = userService.create(bookerDto);
+
+        UserDto ownerDto = new UserDto();
+        ownerDto.setName("John");
+        ownerDto.setEmail("john@email.ru");
+        UserDto owner = userService.create(ownerDto);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("test");
+        itemDto.setDescription("TestDescription");
+        itemDto.setAvailable(true);
+        ItemDto saveItem = itemService.create(itemDto, owner.getId());
+
+        BookingInputDto bookingRequestDto = new BookingInputDto();
+        bookingRequestDto.setStart(LocalDateTime.now().minusDays(3));
+        bookingRequestDto.setEnd(LocalDateTime.now().minusDays(1));
+        bookingRequestDto.setItemId(saveItem.getId());
+
+        BookingDto bookingResponse = bookingService.create(bookingRequestDto, booker.getId());
+
+        List<BookingDto> bookings = bookingService.getBookingsOwner("PAST", owner.getId());
+        assertEquals(1, bookings.size());
+        assertEquals(bookingResponse.getId(), bookings.getFirst().getId());
+    }
+
+    @Test
+    void getAllBookingsByOwnerIdTest_FutureBookings() throws DuplicateException, NotFoundException, ValidationException {
+        UserDto bookerDto = new UserDto();
+        bookerDto.setName("Oliver");
+        bookerDto.setEmail("Oliver@email.ru");
+        UserDto booker = userService.create(bookerDto);
+
+        UserDto ownerDto = new UserDto();
+        ownerDto.setName("John");
+        ownerDto.setEmail("john@email.ru");
+        UserDto owner = userService.create(ownerDto);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("test");
+        itemDto.setDescription("TestDescription");
+        itemDto.setAvailable(true);
+        ItemDto saveItem = itemService.create(itemDto,owner.getId());
+
+        BookingInputDto bookingRequestDto = new BookingInputDto();
+        bookingRequestDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(3));
+        bookingRequestDto.setItemId(saveItem.getId());
+
+        BookingDto bookingResponse = bookingService.create(bookingRequestDto, booker.getId());
+
+        List<BookingDto> bookings = bookingService.getBookingsOwner("FUTURE", owner.getId());
+        assertEquals(1, bookings.size());
+        assertEquals(bookingResponse.getId(), bookings.getFirst().getId());
+    }
+
+    @Test
+    void getAllBookingsByOwnerIdTest_WaitingBookings() throws DuplicateException, NotFoundException, ValidationException {
+        UserDto bookerDto = new UserDto();
+        bookerDto.setName("Oliver");
+        bookerDto.setEmail("Oliver@email.ru");
+        UserDto booker = userService.create(bookerDto);
+
+        UserDto ownerDto = new UserDto();
+        ownerDto.setName("John");
+        ownerDto.setEmail("john@email.ru");
+        UserDto owner = userService.create(ownerDto);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("test");
+        itemDto.setDescription("TestDescription");
+        itemDto.setAvailable(true);
+        ItemDto saveItem = itemService.create(itemDto, owner.getId());
+
+        BookingInputDto bookingRequestDto = new BookingInputDto();
+        bookingRequestDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(3));
+        bookingRequestDto.setItemId(saveItem.getId());
+
+        BookingDto bookingResponse = bookingService.create(bookingRequestDto, booker.getId());
+        bookingResponse.setStatus(BookStatus.WAITING);
+
+        List<BookingDto> bookings = bookingService.getBookingsOwner("WAITING", owner.getId());
+        assertEquals(1, bookings.size());
+        assertEquals(bookingResponse.getId(), bookings.getFirst().getId());
+    }
+
+    @Test
+    void getAllBookingsByOwnerIdTest_ALLBookings() throws DuplicateException, NotFoundException, ValidationException {
+        UserDto bookerDto = new UserDto();
+        bookerDto.setName("Oliver");
+        bookerDto.setEmail("Oliver@email.ru");
+        UserDto booker = userService.create(bookerDto);
+
+        UserDto ownerDto = new UserDto();
+        ownerDto.setName("John");
+        ownerDto.setEmail("john@email.ru");
+        UserDto owner = userService.create(ownerDto);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("test");
+        itemDto.setDescription("TestDescription");
+        itemDto.setAvailable(true);
+        ItemDto saveItem = itemService.create(itemDto, owner.getId());
+
+        BookingInputDto bookingRequestDto = new BookingInputDto();
+        bookingRequestDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(3));
+        bookingRequestDto.setItemId(saveItem.getId());
+
+        BookingDto bookingResponse = bookingService.create(bookingRequestDto, booker.getId());
+        bookingResponse.setStatus(BookStatus.WAITING);
+
+        List<BookingDto> bookings = bookingService.getBookingsOwner("ALL", owner.getId());
         assertEquals(1, bookings.size());
         assertEquals(bookingResponse.getId(), bookings.getFirst().getId());
     }

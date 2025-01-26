@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.BookStatus;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.exception.DuplicateException;
@@ -122,6 +124,35 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void deleteTest() throws NotFoundException {
+        itemService.delete(itemId, userId);
+
+        assertThrows(NotFoundException.class, () -> itemService.getItemById(itemId, userId));
+    }
+
+    @Test
+    void deleteTestNotFoundItem() {
+        assertThrows(NotFoundException.class, () -> itemService.delete(999L, userId));
+    }
+
+    @Test
+    void deleteTestNotFoundOwner() throws ValidationException, DuplicateException, NotFoundException {
+        UserDto userDto2 = new UserDto();
+        userDto2.setName("Oliver");
+        userDto2.setEmail("Oliver2@email.ru");
+        UserDto savedUser = userService.create(userDto2);
+
+        ItemDto itemDto2 = new ItemDto();
+        itemDto2.setName("TestName");
+        itemDto2.setDescription("TestingDescription");
+        itemDto2.setAvailable(true);
+        ItemDto savedItem = itemService.create(itemDto2, savedUser.getId());
+
+        assertThrows(NotFoundException.class, () -> itemService.delete(savedItem.getId()
+                , userId));
+    }
+
+    @Test
     void createItemWithRequestIdTest() throws NotFoundException {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setRequestor(em.find(User.class, userId));
@@ -161,52 +192,52 @@ public class ItemServiceImplTest {
         assertThat(items.size(), equalTo(0));
     }
 
-//    @Test
-//    void createCommentWithoutApprovedBookingTest() throws NotFoundException {
-//        Booking booking = new Booking();
-//        booking.setItem(em.find(Item.class, itemId));
-//        booking.setBooker(em.find(User.class, userId));
-//        booking.setStart(LocalDateTime.now().minusDays(2));
-//        booking.setEnd(LocalDateTime.now().minusDays(1));
-//        booking.setStatus(BookStatus.REJECTED);
-//        em.persist(booking);
-//
-//        CommentDto commentRequestDto = CommentDto.builder()
-//                .text("Excellent item!")
-//                .authorName(booking.getBooker().getName())
-//                .item(itemService.findItemById(userId))
-//                .build();
-//
-//        ValidationException exception = assertThrows(ValidationException.class, () ->
-//                itemService.createComment(commentRequestDto, itemId, userId)
-//        );
-//
-//        assertThat(exception.getMessage(), equalTo("Данный пользователь вещь не бронировал!"));
-//    }
-//
-//    @Test
-//    void createCommentSuccessTest() throws ValidationException, NotFoundException {
-//        Booking booking = new Booking();
-//        booking.setItem(em.find(Item.class, itemId));
-//        booking.setBooker(em.find(User.class, userId));
-//        booking.setStart(LocalDateTime.now().minusDays(2));
-//        booking.setEnd(LocalDateTime.now().minusDays(1));
-//        booking.setStatus(BookStatus.APPROVED);
-//        em.persist(booking);
-//
-//        CommentDto commentRequestDto = CommentDto.builder()
-//                .text("Excellent item!")
-//                .authorName(booking.getBooker().getName())
-//                .item(itemService.findItemById(userId))
-//                .build();
-//
-//        CommentDto createdComment = itemService.createComment(commentRequestDto, userId, itemId);
-//
-//        TypedQuery<Comment> query = em.createQuery("Select c from Comment c where c.id = :id", Comment.class);
-//        Comment savedComment = query.setParameter("id", createdComment.getId()).getSingleResult();
-//
-//        assertThat(savedComment.getText(), equalTo("Excellent item!"));
-//        assertThat(savedComment.getItem().getId(), equalTo(itemId));
-//        assertThat(savedComment.getAuthor().getId(), equalTo(userId));
-//    }
+    @Test
+    void createCommentWithoutApprovedBookingTest() throws NotFoundException {
+        Booking booking = new Booking();
+        booking.setItem(em.find(Item.class, itemId));
+        booking.setBooker(em.find(User.class, userId));
+        booking.setStart(LocalDateTime.now().minusDays(2));
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+        booking.setStatus(BookStatus.REJECTED);
+        em.persist(booking);
+
+        CommentDto commentRequestDto = CommentDto.builder()
+                .text("Excellent item!")
+                .authorName(booking.getBooker().getName())
+                .item(itemService.findItemById(userId))
+                .build();
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+                itemService.createComment(commentRequestDto, itemId, userId)
+        );
+
+        assertThat(exception.getMessage(), equalTo("Данный пользователь вещь не бронировал!"));
+    }
+
+    @Test
+    void createCommentSuccessTest() throws ValidationException, NotFoundException {
+        Booking booking = new Booking();
+        booking.setItem(em.find(Item.class, itemId));
+        booking.setBooker(em.find(User.class, userId));
+        booking.setStart(LocalDateTime.now().minusDays(2));
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+        booking.setStatus(BookStatus.APPROVED);
+        em.persist(booking);
+
+        CommentDto commentRequestDto = CommentDto.builder()
+                .text("Excellent item!")
+                .authorName(booking.getBooker().getName())
+                .item(itemService.findItemById(userId))
+                .build();
+
+        CommentDto createdComment = itemService.createComment(commentRequestDto, userId, itemId);
+
+        TypedQuery<Comment> query = em.createQuery("Select c from Comment c where c.id = :id", Comment.class);
+        Comment savedComment = query.setParameter("id", createdComment.getId()).getSingleResult();
+
+        assertThat(savedComment.getText(), equalTo("Excellent item!"));
+        assertThat(savedComment.getItem().getId(), equalTo(itemId));
+        assertThat(savedComment.getAuthor().getId(), equalTo(userId));
+    }
 }

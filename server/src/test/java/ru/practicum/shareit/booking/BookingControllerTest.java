@@ -95,7 +95,7 @@ public class BookingControllerTest {
 
     @Test
     void getAllBookingsByBookerIdTest() throws Exception {
-        when(bookingService.getBookingsOwner(any(), anyLong()))
+        when(bookingService.getBookings(any(), anyLong()))
                 .thenReturn(List.of(bookingResponseDto));
 
         mockMvc.perform(get("/bookings")
