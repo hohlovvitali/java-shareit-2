@@ -129,6 +129,8 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Данный пользователь вещь не бронировал!");
         }
 
+        System.out.println(booking);
+
         Comment comment = Comment.builder()
                 .created(LocalDateTime.now())
                 .item(booking.getItem())
