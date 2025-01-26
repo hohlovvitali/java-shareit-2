@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.comment.dto.CommentDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
