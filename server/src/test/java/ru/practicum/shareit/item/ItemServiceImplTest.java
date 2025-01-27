@@ -230,7 +230,7 @@ public class ItemServiceImplTest {
                 .item(itemService.findItemById(itemId))
                 .build();
 
-        CommentDto createdComment = itemService.createComment(commentRequestDto, userId, itemId);
+        CommentDto createdComment = itemService.createComment(commentRequestDto, itemId, userId);
 
         TypedQuery<Comment> query = em.createQuery("Select c from Comment c where c.id = :id", Comment.class);
         Comment savedComment = query.setParameter("id", createdComment.getId()).getSingleResult();
