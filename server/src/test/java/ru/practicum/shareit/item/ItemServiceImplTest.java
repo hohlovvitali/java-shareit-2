@@ -204,7 +204,7 @@ public class ItemServiceImplTest {
         CommentDto commentRequestDto = CommentDto.builder()
                 .text("Excellent item!")
                 .authorName(booking.getBooker().getName())
-                .item(itemService.findItemById(userId))
+                .item(itemService.findItemById(itemId))
                 .build();
 
         ValidationException exception = assertThrows(ValidationException.class, () ->
@@ -227,7 +227,7 @@ public class ItemServiceImplTest {
         CommentDto commentRequestDto = CommentDto.builder()
                 .text("Excellent item!")
                 .authorName(booking.getBooker().getName())
-                .item(itemService.findItemById(userId))
+                .item(itemService.findItemById(itemId))
                 .build();
 
         CommentDto createdComment = itemService.createComment(commentRequestDto, userId, itemId);
